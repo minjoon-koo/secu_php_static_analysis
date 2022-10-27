@@ -1,0 +1,1 @@
+# secu_php_static_analysis
