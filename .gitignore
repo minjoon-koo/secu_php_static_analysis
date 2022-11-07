@@ -1,0 +1,6 @@
+#env 환경변수
+.env
+
+#install 설치 파일
+venv/
+
