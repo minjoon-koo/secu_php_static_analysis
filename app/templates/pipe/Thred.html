@@ -1,0 +1,33 @@
+<h1>{{ tiket.subject }}</h1>
+<div>
+    <b>STATUS</b> : {{ tiket.status }} 
+</div>
+<div>
+    <b>JIRA Tiket NUM</b> : {{ tiket.content }}
+</div>
+<div>
+    <b>repoURL</b> : {{ tiket.repoURL }}
+</div>
+<div>
+    <b>branch</b> : {{ tiket.branch }}
+</div>
+<div>
+    <b>생성일</b> : {{ tiket.create_date }} 
+</div>
+</br>
+<form action="{% url 'pipe:thred_create' tiket.id %}"  method="post">{% csrf_token %}
+    <input type="hidden" id="branch" name="branch" value="{{tiket.branch}}">
+    <input type="hidden" id="repoURL" name="repoURL" value="{{tiket.repoURL}}">
+    <input type="hidden" id="content" name="content" value="dumydata">
+    <input type="submit" value="new Analysys psalm">
+</form>
+
+</br>
+<h5>{{ tiket.thred_set.count }}개의 점검 건이 있습니다.</h5>
+<div>
+    <ul>
+    {% for thred in tiket.thred_set.all %}
+        <li>{{ thred.content }}</li>
+    {% endfor %}
+    </ul>
+</div>

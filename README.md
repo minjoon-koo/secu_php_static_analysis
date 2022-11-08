@@ -7,12 +7,13 @@ composer require --dev vimeo/psalm
 ```
 2. 초기 설정 파일 생성
 ```bash
-./vendor/bin/psaml --init
+./vendor/bin/psalm --init .
 ```
 > ./ 디렉토리에 psalm.xml 파일이 생성 됨
 
 3. 추가 플러그인 설치
 ```bash
+composer require --dev psalm/plugin-laravel
 ./vendor/bin/psalm-plugin enable psalm/plugin-laravel
 ```
 4. 초기 세팅 예시
@@ -48,5 +49,5 @@ errorLevel : 탐지 강도 (시큐어코딩 탐지만을 하기 때문에 낮은
 
 ### II. 보안 탐지 
 ```bash
-./vender/bin/psalm --taint-analysis
+./vendor/bin/psalm --taint-analysis
 ```
