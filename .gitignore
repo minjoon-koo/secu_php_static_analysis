@@ -1,6 +1,10 @@
 #env 환경변수
 .env
+meno
 
 #install 설치 파일
 venv/
 
+#sql 파일
+pipe/Storage/
+db.sqllite3

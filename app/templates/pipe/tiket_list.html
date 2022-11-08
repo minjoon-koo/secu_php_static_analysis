@@ -1,0 +1,12 @@
+<h1>
+    Soldout SecureCoding Analysys board(PHP)
+</h1>
+{% if tiket_list %}
+    <h3>
+    {% for tiket in tiket_list %}
+        <li><a href="{% url 'pipe:detail' tiket.id %}">{{ tiket.subject }}</a> </li>
+    {% endfor %}
+    </h3>
+{% else %}
+    <p>점검중인 tiket이 없습니다.</p>
+{% endif %}
