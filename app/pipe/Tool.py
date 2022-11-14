@@ -1,15 +1,9 @@
 import os, subprocess, sys  
 from datetime import datetime
-import json
+import json, xmltodict
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-'''
-git clone parameter 샘플
-{
-    
-}
-'''
 
 '''소스코드 점검 대상 github code 
 git clone -b [branch name] --single-branch https://\
@@ -28,3 +22,41 @@ def git_clone(userName, accessToken, branch, repoUrl, Tiket, Thred):
     dir = f"../Storage/{Tiket}/{Thred}"
     result = subprocess.run(['git','clone','-b',branch,'--single-branch',clone,dir],capture_output=True, text=True)
     return result.stdout
+
+
+confxml = '''<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="simple-php-website"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+        </ignoreFiles>
+    </projectFiles>
+<plugins><pluginClass class="Psalm\LaravelPlugin\Plugin"/></plugins></psalm>'''
+def psalm(Tiket, Thred):
+    execbin = f'../Storage/vendor/bin/psalm'
+    configFile = f'../Storage/{Tiket}.{Thred}.xml'
+    execoption = f"--config={configFile}"
+    output = f"--output-format=json"
+
+    #1. create config file
+    confDict = xmltodict.parse(confxml)
+    confDict['psalm']['projectFiles']['directory']['@name'] = f"{Tiket}/{Thred}/"
+    Newconf = xmltodict.unparse(confDict, pretty=True)
+    with open(configFile,'w') as f:
+        f.write(Newconf)
+
+    #2. psaml analysis 
+    result = subprocess.run([execbin,execoption,'--taint-analysis',output],capture_output=True, text=True)
+    #3. return json && db save()
+    # json parshing 
+    json 
+
+    #return result.stdout
+    

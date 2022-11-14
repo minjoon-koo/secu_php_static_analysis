@@ -8,3 +8,6 @@ venv/
 #sql 파일
 pipe/Storage/
 db.sqllite3
+
+#cache 파일
+__pycache__/
