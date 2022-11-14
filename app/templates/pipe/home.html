@@ -1,0 +1,8 @@
+<h5>{{ tiket.thred_set.count }}개의 점검 건이 있습니다.</h5>
+<div>
+    <ul>
+    {% for thred in tiket.thred_set.all %}
+        <li>{{ thred.id }} > {{thred.content}}</li>
+    {% endfor %}
+    </ul>
+</div>

@@ -1,3 +1,8 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+
 <h1>{{ tiket.subject }}</h1>
 <div>
     <b>STATUS</b> : {{ tiket.status }} 
@@ -14,20 +19,88 @@
 <div>
     <b>생성일</b> : {{ tiket.create_date }} 
 </div>
+
 </br>
 <form action="{% url 'pipe:thred_create' tiket.id %}"  method="post">{% csrf_token %}
     <input type="hidden" id="branch" name="branch" value="{{tiket.branch}}">
     <input type="hidden" id="repoURL" name="repoURL" value="{{tiket.repoURL}}">
-    <input type="hidden" id="content" name="content" value="dumydata">
+    <input type="hidden" id="thred" name="thred" value=tmp>
     <input type="submit" value="new Analysys psalm">
 </form>
-
-</br>
 <h5>{{ tiket.thred_set.count }}개의 점검 건이 있습니다.</h5>
+
+결과 / 도출 건수 /점검일 > 상세보기
+
+
+
 <div>
     <ul>
     {% for thred in tiket.thred_set.all %}
-        <li>{{ thred.content }}</li>
+        <li>{{ thred.id }} > {{thred.content}}</li>
     {% endfor %}
     </ul>
 </div>
+
+
+<!--ajax test field--> 
+
+<div id="result"></div>
+<input type="text" id="msg" />    
+<input type="submit" value="get result" id="getResult" />
+<script>
+$('#getResult').click( function() {
+    $.ajax({
+        url:"{%url 'pipe:ajax_test' %}",
+        dataType:'json',
+        type:'POST',
+        data:{'msg':$('#msg').val()},
+        success:function(result){
+            $('#result').text(result);
+        }
+    });
+})
+</script>
+<script>
+$(document).ready(function(){
+  $('.more').click(function(){
+    if($('.more').hasClass('more')){
+       $('.more').addClass('close').removeClass('more');
+       $('.board').css('visibility', 'visible');
+    }else if($('.close').hasClass('close')){
+       $('.close').addClass('more').removeClass('close');  
+       $('.board').css('visibility', 'hidden');
+    }
+  });
+});
+</script>
+
+
+
+
+</br></br></br>
+<span class="more">
+    <span class="blind">더보기 V</span>
+  </span>
+  <div class="board" style="visibility: hidden">
+    <ul class="list">
+      <li>가계부</li>
+      <li>날씨</li>
+      <li>네이버 예약</li>
+      <li>네이버 캐스트</li>
+      <li>네이버 클라우드</li>
+    </ul>
+    <ul class="list">
+      <li>만화 / 웹툰</li>
+      <li>매거진캐스트</li>
+      <li>메모</li>
+      <li>뮤직</li>
+      <li>부동산</li>
+    </ul>
+    <ul class="list">
+      <li>영화</li>
+      <li>오디오클립</li>
+      <li>오피스</li>
+      <li>웹소설</li>
+      <li>자동차</li>
+    </ul>
+  </div>

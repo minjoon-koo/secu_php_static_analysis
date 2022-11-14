@@ -1,12 +1,37 @@
-<h1>
-    Soldout SecureCoding Analysys board(PHP)
-</h1>
-{% if tiket_list %}
-    <h3>
-    {% for tiket in tiket_list %}
-        <li><a href="{% url 'pipe:detail' tiket.id %}">{{ tiket.subject }}</a> </li>
-    {% endfor %}
-    </h3>
-{% else %}
-    <p>점검중인 tiket이 없습니다.</p>
-{% endif %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+
+<h4>Soldout SecureCoding Analysys board(PHP)</h4>
+<div class="container my-3">
+    <table class="table">
+        <thead>
+        <tr class="table-dark">
+            <th>TiKet</th>
+            <th>Repository Name</th>
+            <th>branch</th>
+            <th>JIRA ISSUE</th>
+            <th>status</th>
+            
+        </tr>
+        </thead>
+        <tbody>
+        {% if tiket_list %}
+        {% for tiket in tiket_list %}
+        <tr>
+            <td>{{ tiket.id }}</td>
+            <td>
+                <a href="{% url 'pipe:detail' tiket.id %}">{{ tiket.subject }}</a>
+            </td>
+            <td>{{ tiket.branch}}</td>
+            <td>{{ tiket.content}}</td>
+            <td>{{ tiket.status }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="3">tt</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
