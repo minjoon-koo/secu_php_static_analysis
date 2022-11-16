@@ -21,7 +21,7 @@ def git_clone(userName, accessToken, branch, repoUrl, Tiket, Thred):
     clone = f"https://{userName}:{accessToken}@{repoUrl}"
     dir = f"../Storage/{Tiket}/{Thred}"
     result = subprocess.run(['git','clone','-b',branch,'--single-branch',clone,dir],capture_output=True, text=True)
-    return result.stdout
+    return result.stderr
 
 
 confxml = '''<?xml version="1.0"?>
@@ -54,9 +54,9 @@ def psalm(Tiket, Thred):
 
     #2. psaml analysis 
     result = subprocess.run([execbin,execoption,'--taint-analysis',output],capture_output=True, text=True)
-    #3. return json && db save()
-    # json parshing 
-    json 
-
-    #return result.stdout
+    #3. return json 
+    json_res = result.stdout
+    print(result.stdout)
+    #print(result.stderr)
+    return result.stdout
     
