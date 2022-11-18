@@ -10,4 +10,5 @@ python manage.py migrate
 #python3 manage.py migrate
 django-admin startapp ./Tool/pipe
 
-#비동기
+#jira 
+pip install jira

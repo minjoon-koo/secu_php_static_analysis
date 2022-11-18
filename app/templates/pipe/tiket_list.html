@@ -1,5 +1,21 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+<script>
+    $('#getResult').click( function() {
+        $.ajax({
+            url:"{%url 'pipe:tiket_create' %}",
+            dataType:'json',
+            type:'GET',
+            data:{'msg':$('#msg').val()},
+            success:function(result){
+                $('#result').text(result);
+            }
+        });
+    })
+</script>
+
+
+
 
 <h4>Soldout SecureCoding Analysys board(PHP)</h4>
 <div class="container my-3">

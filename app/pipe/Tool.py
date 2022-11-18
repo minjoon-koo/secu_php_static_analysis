@@ -1,6 +1,9 @@
 import os, subprocess, sys  
 from datetime import datetime
 import json, xmltodict
+from jira import JIRA
+import requests
+from requests.auth import HTTPBasicAuth
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -59,4 +62,75 @@ def psalm(Tiket, Thred):
     print(result.stdout)
     #print(result.stderr)
     return result.stdout
+
+
+'''
+jira 이슈 관리 방법 또는
+배포 방식이 어떻게 변동되느냐에 따라 변수를 받느냐 고정 값으로 서칭하느냐 등
+변경이 필요 할 것으로 보입니다.
+
+현재 DEMO버전에서는 아래의 고정 값을 기준으로 이슈, 브랜치 서칭하도록 구현 함
+
+
+#파이선 모듈
+>>> from jira import JIRA
+>>> import requests
+>>> from requests.auth import HTTPBasicAuth
+
+#배포 이슈 생성되는 jira 정보
+url = 'https://xxxxxxx.atlassian.net'
+options = {"server":url}
+project = 'XXXXXX'
+status = '배포대기'
+JQL = f"project ={project} AND status = {status}" 
+REST_git_branch = f"""{url}/rest/dev-status/latest/issue/detail?issueId={issue_id}&applicationType=GitHub&dataType=branch"""
+
+'''
+
+def jira(URL, userName, accessToken, projectKey,statusValue):
+    #함수 최종 리턴 값 
+    #repoName
+    #repoURL
+    #branch
+    #jira issue_Key
+    '''
+    {
+         Issue_key : { 
+            repoName : 'Name', 
+            repoURL : 'url',
+            branch : 'branch',
+
+            }, 
+    }'''
+    tiket_dict = {}
+
+    #jira objects 에서 issue id 추출
+    options = {"server":URL}
+    JQL = f"project = {projectKey} AND status = {statusValue}"
+    auth = HTTPBasicAuth(userName,accessToken)
+
+    jira = JIRA(options, basic_auth =(userName, accessToken))
+    ###jira_issue : return SELECT LIST 
+    #[<JIRA Issue: key='SEC-95', id='27006'>, <JIRA Issue: key='SEC-89', id='26698'>,]
+    jira_issue = jira.search_issues(JQL)
+
+
+    for i in jira_issue:
+        REST_git_branch = requests.request(
+            "GET", 
+            f"{URL}/rest/dev-status/latest/issue/detail?issueId={i.id}&applicationType=GitHub&dataType=branch", 
+            headers= {'Accept': 'application/json'}, 
+            auth= HTTPBasicAuth(userName,accessToken)
+            )
+        REST_JSON = json.loads(REST_git_branch.text)
+
+        try:
+            tiket_dict[i.key]= {"branch" : REST_JSON['detail'][0]['branches'][0]['name'],
+            "repoName": REST_JSON['detail'][0]['branches'][0]['repository']['name'],
+            "repoURL" : REST_JSON['detail'][0]['branches'][0]['repository']['url']
+            }
+        except:
+            print(REST_JSON)
     
+    print(tiket_dict)
+

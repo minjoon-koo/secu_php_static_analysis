@@ -1,8 +1,18 @@
-<h5>{{ tiket.thred_set.count }}개의 점검 건이 있습니다.</h5>
-<div>
-    <ul>
-    {% for thred in tiket.thred_set.all %}
-        <li>{{ thred.id }} > {{thred.content}}</li>
-    {% endfor %}
-    </ul>
-</div>
+<!--ajax test field--> 
+<!--
+<div id="result"></div>
+<input type="text" id="msg" />    
+<input type="submit" value="get result" id="getResult" />-->
+<script>
+    $('#getResult').click( function() {
+        $.ajax({
+            url:"{%url 'pipe:ajax_test' %}",
+            dataType:'json',
+            type:'POST',
+            data:{'msg':$('#msg').val()},
+            success:function(result){
+                $('#result').text(result);
+            }
+        });
+    })
+</script>

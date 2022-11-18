@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Tiket,Thred, Result
-from .Tool import git_clone, psalm
+from .Tool import git_clone, psalm, jira
 
 import time
 import os,dotenv, json
@@ -55,7 +55,14 @@ def thred_create(request, tiket_id):
 def ajax_test(request):
     temp = request.POST.get('msg')
     #time.sleep(5)
-    tmp= psalm("3","4")
+    #tmp= psalm("3","4")
+    URL = os.environ.get("JIRA_URL")
+    userName=os.environ.get("JIRA_USER_EMAIL")
+    accessToken = os.environ.get("JIRA_ACCESS_TOKEN")
+    projectKey = os.environ.get("JIRA_PROJECT_KEY")
+    statusValue = os.environ.get("JIRA_STATUS_VALUE")
+
+    jira(URL, userName, accessToken, projectKey,statusValue)
     context = {"test":temp}
     return JsonResponse(context)
     #return JsonResponse(tmp)
@@ -67,3 +74,9 @@ def thred_list(request, tiket_id,thred_num):
     #result = filter_object_or_404(Result,thred=thred_num)
     context = {'tiket': tiket, 'thred':thred, 'result':result}
     return render(request, 'pipe/thred_list.html',context )
+
+
+def tiket_create(request):
+    tiket_list = Tiket.objects.order_by('-create_date')
+    context = {'tiket_list': tiket_list}
+    return JsonResponse(context)
