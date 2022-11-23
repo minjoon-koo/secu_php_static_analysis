@@ -5,10 +5,12 @@ from django.db import models
 class Tiket(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
+    jira_tiket = models.TextField(null=True)
     repoURL = models.TextField()
     branch = models.TextField()
     status = models.TextField()
     create_date = models.DateTimeField()
+    jira_id = models.TextField(null=True)
     def __str__(self):
         return self.subject
 

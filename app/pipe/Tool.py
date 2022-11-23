@@ -1,6 +1,9 @@
 import os, subprocess, sys  
 from datetime import datetime
 import json, xmltodict
+from jira import JIRA
+import requests
+from requests.auth import HTTPBasicAuth
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -18,10 +21,11 @@ ex)
 git clone -b test --single-branch https://minjoon-koo:[git-acc-token]@github.com/test/test.git
 '''
 def git_clone(userName, accessToken, branch, repoUrl, Tiket, Thred):
-    clone = f"https://{userName}:{accessToken}@{repoUrl}"
+    clone = f"https://{userName}:{accessToken}@{repoUrl}.git"
     dir = f"../Storage/{Tiket}/{Thred}"
+    subprocess.run(['rm','-rf',dir])
     result = subprocess.run(['git','clone','-b',branch,'--single-branch',clone,dir],capture_output=True, text=True)
-    return result.stdout
+    return result.stderr
 
 
 confxml = '''<?xml version="1.0"?>
@@ -33,13 +37,13 @@ confxml = '''<?xml version="1.0"?>
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="simple-php-website"/>
+        <file name="test.php"/>
         <ignoreFiles>
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
 <plugins><pluginClass class="Psalm\LaravelPlugin\Plugin"/></plugins></psalm>'''
-def psalm(Tiket, Thred):
+def psalm(Tiket, Thred,file_list):
     execbin = f'../Storage/vendor/bin/psalm'
     configFile = f'../Storage/{Tiket}.{Thred}.xml'
     execoption = f"--config={configFile}"
@@ -47,16 +51,141 @@ def psalm(Tiket, Thred):
 
     #1. create config file
     confDict = xmltodict.parse(confxml)
-    confDict['psalm']['projectFiles']['directory']['@name'] = f"{Tiket}/{Thred}/"
+    dump = []
+    for i in file_list:
+        rf = f"{Tiket}/{Thred}/{i}"
+        path = {"@name":rf}
+        dump.append(path)
+    confDict['psalm']['projectFiles']['file'] = dump    
+
+            
+    #confDict['psalm']['projectFiles']['directory']['@name'] = f"{Tiket}/{Thred}/"
     Newconf = xmltodict.unparse(confDict, pretty=True)
     with open(configFile,'w') as f:
         f.write(Newconf)
 
     #2. psaml analysis 
     result = subprocess.run([execbin,execoption,'--taint-analysis',output],capture_output=True, text=True)
-    #3. return json && db save()
-    # json parshing 
-    json 
+    #3. return json 
+    json_res = result.stdout
+    print(result.stdout)
+    #print(result.stderr)
+    return result.stdout
 
-    #return result.stdout
+
+'''
+jira 이슈 관리 방법 또는
+배포 방식이 어떻게 변동되느냐에 따라 변수를 받느냐 고정 값으로 서칭하느냐 등
+변경이 필요 할 것으로 보입니다.
+
+현재 DEMO버전에서는 아래의 고정 값을 기준으로 이슈, 브랜치 서칭하도록 구현 함
+
+
+#파이선 모듈
+>>> from jira import JIRA
+>>> import requests
+>>> from requests.auth import HTTPBasicAuth
+
+#배포 이슈 생성되는 jira 정보
+url = 'https://xxxxxxx.atlassian.net'
+options = {"server":url}
+project = 'XXXXXX'
+status = '배포대기'
+JQL = f"project ={project} AND status = {status}" 
+REST_git_branch = f"""{url}/rest/dev-status/latest/issue/detail?issueId={issue_id}&applicationType=GitHub&dataType=branch"""
+
+'''
+
+def jira(URL, userName, accessToken, projectKey,statusValue):
+    #함수 최종 리턴 값 
+    #repoName
+    #repoURL
+    #branch
+    #jira issue_Key
+    '''
+    {
+         Issue_key : { 
+            repoName : 'Name', 
+            repoURL : 'url',
+            branch : 'branch',
+            id : 'id',
+            file_list : [str,str,str],
+            }, 
+    }'''
+    tiket_dict = {}
+
+    #jira objects 에서 issue id 추출
+    options = {"server":URL}
+    JQL = f"project = {projectKey} AND status = {statusValue}"
+    auth = HTTPBasicAuth(userName,accessToken)
+
+    jira = JIRA(options, basic_auth =(userName, accessToken))
+    ###jira_issue : return SELECT LIST 
+    #[<JIRA Issue: key='SEC-95', id='27006'>, <JIRA Issue: key='SEC-89', id='26698'>,]
+    jira_issue = jira.search_issues(JQL)
+
+    kim = 0
+    for i in jira_issue:
+        REST_git_branch = requests.request(
+            "GET", 
+            f"{URL}/rest/dev-status/latest/issue/detail?issueId={i.id}&applicationType=GitHub&dataType=branch", 
+            headers= {'Accept': 'application/json'}, 
+            auth= HTTPBasicAuth(userName,accessToken)
+            )
+        REST_JSON = json.loads(REST_git_branch.text)
+
+        REST_git_commit = requests.request(
+            "GET", 
+            f"{URL}/rest/dev-status/latest/issue/detail?issueId={i.id}&applicationType=GitHub&dataType=repository", 
+            headers= {'Accept': 'application/json'}, 
+            auth= HTTPBasicAuth(userName,accessToken)
+            )
+        REST_ADD = json.loads(REST_git_commit.text)
+        
+        try:
+            file_dump = []
+            for k in REST_ADD['detail'][0]['repositories'][0]['commits']:
+                for h in k['files']:
+                    file_dump.append(h['path'])
+            file_list_set = set(file_dump)
+            file_list = list(file_list_set)
+            tiket_dict[i.key]= {"branch" : REST_JSON['detail'][0]['branches'][0]['name'],
+            "repoName": REST_JSON['detail'][0]['branches'][0]['repository']['name'],
+            "repoURL" : REST_JSON['detail'][0]['branches'][0]['repository']['url'],
+            "id" : i.id,
+            "file_list" : file_list
+            }
+        except:
+            print(f"{i.key} : not found GITHUB BRANCH")
     
+    return tiket_dict
+
+
+def comment(URL, userName, accessToken, statusValue, jira_tiket, psalmResult, pipe_url):
+    text =f'[SEC_CODE]점검 결과 : {psalmResult}개 취약패턴이 검출되었습니다.\n > 상세 내용 확인 : {pipe_url}'
+    if(psalmResult == '0') : text = f'[SEC_CODE]점검 완료 되었습니다\n > 상세 내용 확인 : {pipe_url}'
+    headers={
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+        }
+
+    data=json.dumps({
+            "body": {
+                "type": "doc", 
+                "version": 1, 
+                "content": [{
+                        "type": "paragraph", 
+                        "content": [{
+                                "text": text, 
+                                "type": "text"
+                                }]
+                            }]
+                    }
+        })
+
+    push_result=requests.post(
+        f"{URL}/rest/api/3/issue/{jira_tiket}/comment",
+        headers= headers, 
+        data=data,
+        auth=HTTPBasicAuth(userName,accessToken)
+        )

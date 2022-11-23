@@ -1,2 +1,36 @@
-
 {% load static %}
+
+
+<div>
+    <table class="table">
+        <thead>
+        <tr class="table-gray">
+            <th>취약점 구분</th>
+            <th>도출 파일 (line)</th>
+            
+            <th width="600">취약점 도출 코드</th>
+            <th>내용</th>
+            
+        </tr>
+        </thead>
+        <tbody>
+        {% if result %}
+        {% for i in result %}
+        <tr>
+            <td>{{ i.Type }}</td>
+            <td>{{ i.file_name }} ({{ i.line_from}}:{{i.line_to}})</td>
+            
+            <td>{{ i.snippet}}</td>
+            <td>
+                <a href="{{i.link}}">{{ i.messages }}</a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="3">tt</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>

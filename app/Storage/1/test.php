@@ -19,6 +19,3 @@ $command = $_GET["command"];
 
 runCode($command);
 
-function runCode(string $command) {
-    exec($command);
-}
