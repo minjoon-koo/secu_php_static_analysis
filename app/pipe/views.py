@@ -8,7 +8,7 @@ from .models import Tiket,Thred, Result
 from .Tool import git_clone, psalm, jira,comment
 
 import time
-import os,dotenv, json
+import os,dotenv, json,subprocess
 dotenv.load_dotenv()
 
 # 공통 변수
@@ -68,7 +68,7 @@ def thred_create(request, tiket_id):
     pipe_url = f"{SEC_URL}/pipe/{tiket.id}"
     tt = Thred.objects.get(thred_num=thred,tiket_id=tiket_id)
     comment(JIRA_URL,JIRA_userName,JIRA_accessToken, SV, "SEC-95",tt.psalmResult ,pipe_url)
-    subprocess.run(['rm','-rf',dir])
+    #subprocess.run(['rm','-rf',dir])
 
     return redirect('pipe:detail', tiket_id=tiket.id)
     #return JsonResponse(tmp)
@@ -146,7 +146,7 @@ def ajax_test(request):
 
 def thred_list(request, tiket_id,thred_num):
     tiket = get_object_or_404(Tiket,pk=tiket_id)
-    thred = get_object_or_404(Thred,thred_num = thred_num)
+    thred = Thred.objects.filter(thred_num = thred_num)
     result = Result.objects.filter(thred=thred_num)
     #result = filter_object_or_404(Result,thred=thred_num)
     context = {'tiket': tiket, 'thred':thred, 'result':result}

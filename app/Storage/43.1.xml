@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<psalm errorLevel="1" resolveFromConfigFile="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd">
+	<projectFiles>
+		<file name="43/1/resources/views/web_view/toss_order.blade.php"></file>
+		<file name="43/1/app/Repositories/Order/PaymentRepo.php"></file>
+		<file name="43/1/resources/views/web_view/npay_order.blade.php"></file>
+		<file name="43/1/app/Libraries/PG/KCP.php"></file>
+		<file name="43/1/app/Libraries/PG/NPAY.php"></file>
+		<file name="43/1/app/Repositories/Order/Interfaces/PaymentRepoInterface.php"></file>
+		<file name="43/1/resources/views/web_view/kcp_pc_order.blade.php"></file>
+		<ignoreFiles>
+			<directory name="vendor"></directory>
+		</ignoreFiles>
+	</projectFiles>
+	<plugins>
+		<pluginClass class="Psalm\LaravelPlugin\Plugin"></pluginClass>
+	</plugins>
+</psalm>

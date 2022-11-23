@@ -25,6 +25,7 @@ def git_clone(userName, accessToken, branch, repoUrl, Tiket, Thred):
     dir = f"../Storage/{Tiket}/{Thred}"
     subprocess.run(['rm','-rf',dir])
     result = subprocess.run(['git','clone','-b',branch,'--single-branch',clone,dir],capture_output=True, text=True)
+    print(result.stderr)
     return result.stderr
 
 
@@ -69,7 +70,7 @@ def psalm(Tiket, Thred,file_list):
     #3. return json 
     json_res = result.stdout
     print(result.stdout)
-    #print(result.stderr)
+    print(result.stderr)
     return result.stdout
 
 
