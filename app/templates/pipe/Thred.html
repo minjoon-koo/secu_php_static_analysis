@@ -10,7 +10,7 @@
     <b>STATUS</b> : {{ tiket.status }} 
 </div>
 <div>
-    <b>JIRA Tiket NUM</b> : {{ tiket.content }}
+    <b>JIRA Tiket NUM</b> : {{ tiket.jira_tiket }}
 </div>
 <div>
     <b>repoURL</b> : {{ tiket.repoURL }}
@@ -24,15 +24,17 @@
 
 
 
-
-
-
 </br>
-<form action="{% url 'pipe:thred_create' tiket.id %}"  method="post">{% csrf_token %}
+<form action="{% url 'pipe:thred_create' tiket.id %}"  method="post" >{% csrf_token %}
     <input type="hidden" id="branch" name="branch" value="{{tiket.branch}}">
     <input type="hidden" id="repoURL" name="repoURL" value="{{tiket.repoURL}}">
+    <input type="hidden" id="jira_tiket" name="jira_tiket" value="{{tiket.jira_tiket}}">
     <input type="hidden" id="thred" name="thred" value={{ tiket.thred_set.count }}>
-    <input type="submit" value="new Analysys psalm">
+    {% if tiket.status == '점검 완료'%}
+    <input type="hidden" value="new Analysys psalm">
+    {% else %}
+    <input id='target_btn' type="submit" value="new Analysys psalm">
+    {% endif %}
 </form>
 <h5>{{ tiket.thred_set.count }}개의 점검 건이 있습니다.</h5>
 
@@ -87,19 +89,21 @@
 <!--ajax test field--> 
 
 <div id="result"></div>
-<input type="text" id="msg" />    
+<input type="hidden" id="branch" name="branch" value="{{tiket.branch}}">
+<input type="hidden" id="repoURL" name="repoURL" value="{{tiket.repoURL}}">
+<input type="hidden" id="jira_tiket" name="jira_tiket" value="{{tiket.jira_tiket}}">
+<input type="hidden" id="thred" name="thred" value={{ tiket.thred_set.count }}>
 <input type="submit" value="get result" id="getResult" />
 <script>
 $('#getResult').click( function() {
     $.ajax({
-        url:"{%url 'pipe:ajax_test' %}",
+        url:"{%url 'pipe:thred_create' tiket.id %}",
         dataType:'json',
         type:'POST',
-        data:{'msg':$('#msg').val()},
+        data:{'branch':$('#branch').val(), 'repoURL':$('#repoURL').val(), 'jira_tiket':$('#jira_tiket').val(), 'thred':$('#thred').val()},
         success:function(result){
             $('#result').text(result);
         }
     });
 })
 </script>
-

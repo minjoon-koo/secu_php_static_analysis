@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <psalm errorLevel="1" resolveFromConfigFile="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd">
 	<projectFiles>
-		<directory name="3/4/"></directory>
+		<file name="40/1/app/Repositories/Product/ItemRepo.php"></file>
+		<file name="40/1/app/Libraries/Delivery/CJ/CJApiHelper.php"></file>
+		<file name="40/1/app/Http/Controllers/Api/Order/PaymentController.php"></file>
+		<file name="40/1/app/Traits/ControllerTrait.php"></file>
 		<ignoreFiles>
 			<directory name="vendor"></directory>
 		</ignoreFiles>

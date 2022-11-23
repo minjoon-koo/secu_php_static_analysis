@@ -1,28 +1,14 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
-<script>
-    $('#getResult').click( function() {
-        $.ajax({
-            url:"{%url 'pipe:tiket_create' %}",
-            dataType:'json',
-            type:'GET',
-            data:{'msg':$('#msg').val()},
-            success:function(result){
-                $('#result').text(result);
-            }
-        });
-    })
-</script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
-
-
-
-<h4>Soldout SecureCoding Analysys board(PHP)</h4>
 <div class="container my-3">
+    <h4>Soldout SecureCoding Analysys board(PHP)</h4>
     <table class="table">
         <thead>
         <tr class="table-dark">
-            <th>TiKet</th>
+            <th>No</th>
             <th>Repository Name</th>
             <th>branch</th>
             <th>JIRA ISSUE</th>
@@ -39,8 +25,12 @@
                 <a href="{% url 'pipe:detail' tiket.id %}">{{ tiket.subject }}</a>
             </td>
             <td>{{ tiket.branch}}</td>
-            <td>{{ tiket.content}}</td>
-            <td>{{ tiket.status }}</td>
+            <td>{{ tiket.jira_tiket}}</td>
+            {% if tiket.status == '점검 완료' %}
+            <td class="table-primary"><a href="{% url 'pipe:detail' tiket.id %}">{{ tiket.status }}</a></td>
+            {% else %}
+            <td class="table-danger"><a href="{% url 'pipe:detail' tiket.id %}">{{ tiket.status }}</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
         {% else %}
@@ -51,3 +41,14 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $.ajax({
+        url:"{%url 'pipe:ajax_test' %}",
+        dataType:'json',
+        type:'POST',
+        data:{'msg':$('#msg').val()},
+    });
+    });
+</script>

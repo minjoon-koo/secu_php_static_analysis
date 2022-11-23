@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <psalm errorLevel="1" resolveFromConfigFile="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd">
 	<projectFiles>
-		<directory name="1/4/"></directory>
+		<file name="47/4/database/seeds/Order/OrderConfTableSeeder.php"></file>
+		<file name="47/4/app/Repositories/Order/Interfaces/PaymentRepoInterface.php"></file>
+		<file name="47/4/app/Http/Controllers/Api/Order/PaymentController.php"></file>
 		<ignoreFiles>
 			<directory name="vendor"></directory>
 		</ignoreFiles>

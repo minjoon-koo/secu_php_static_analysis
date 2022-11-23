@@ -10,5 +10,6 @@ urlpatterns = [
     path('thred/create/<int:tiket_id>/', views.thred_create, name='thred_create'),
     path('ajax_test/', views.ajax_test, name='ajax_test'),
     path('<int:tiket_id>/<int:thred_num>/list', views.thred_list, name ='thred_list'),
-    path('tiket_create', views.tiket_create, name='tiket_create'),
+    path('error',views.error, name='error'),
+    path('login/', views.login, name='login'),
 ]
