@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'ded3dedefab9ada2bae76007faea753a1177cf13',
+        'reference' => '9c8bf3d89c3b631c72c9c2053cc753cbac8d52e0',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'ded3dedefab9ada2bae76007faea753a1177cf13',
+            'reference' => '9c8bf3d89c3b631c72c9c2053cc753cbac8d52e0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -859,8 +859,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => true,
             'provided' => array(
-                0 => '1.0|2.0|3.0',
-                1 => '1.0.0 || 2.0.0 || 3.0.0',
+                0 => '1.0.0 || 2.0.0 || 3.0.0',
+                1 => '1.0|2.0|3.0',
             ),
         ),
         'psr/simple-cache' => array(

@@ -20,11 +20,12 @@ git clone -b [branch name] --single-branch https://\
 ex)
 git clone -b test --single-branch https://minjoon-koo:[git-acc-token]@github.com/test/test.git
 '''
-def git_clone(userName, accessToken, branch, repoUrl, Tiket, Thred):
+def git_clone(userName, accessToken, branch, repoUrl, Tiket, Thred, No):
     clone = f"https://{userName}:{accessToken}@{repoUrl}.git"
-    dir = f"../Storage/{Tiket}/{Thred}"
+    dir = f"../Storage/{Tiket}/{Thred}/{No}"
     subprocess.run(['rm','-rf',dir])
     result = subprocess.run(['git','clone','-b',branch,'--single-branch',clone,dir],capture_output=True, text=True)
+    print(result.stderr)
     return result.stderr
 
 
@@ -69,7 +70,7 @@ def psalm(Tiket, Thred,file_list):
     #3. return json 
     json_res = result.stdout
     print(result.stdout)
-    #print(result.stderr)
+    print(result.stderr)
     return result.stdout
 
 
@@ -112,6 +113,18 @@ def jira(URL, userName, accessToken, projectKey,statusValue):
             file_list : [str,str,str],
             }, 
     }'''
+    '''리턴 타입변경 --> 멀티 브런치
+     {
+         Issue_key : [
+            { 
+                repoName : 'Name', repoURL : 'url', branch : 'branch', id : 'id',file_list : [str,str,str]
+            },
+            { 
+                repoName : 'Name', repoURL : 'url', branch : 'branch', id : 'id',file_list : [str,str,str]
+            }
+        ]
+    }   
+    '''
     tiket_dict = {}
 
     #jira objects 에서 issue id 추출
@@ -141,25 +154,47 @@ def jira(URL, userName, accessToken, projectKey,statusValue):
             auth= HTTPBasicAuth(userName,accessToken)
             )
         REST_ADD = json.loads(REST_git_commit.text)
-        
+        #print(REST_JSON['detail'][0]['branches'][0]['name'])
+        #print(json.dumps(REST_ADD))
         try:
+            '''
             file_dump = []
             for k in REST_ADD['detail'][0]['repositories'][0]['commits']:
                 for h in k['files']:
                     file_dump.append(h['path'])
             file_list_set = set(file_dump)
             file_list = list(file_list_set)
-            tiket_dict[i.key]= {"branch" : REST_JSON['detail'][0]['branches'][0]['name'],
-            "repoName": REST_JSON['detail'][0]['branches'][0]['repository']['name'],
-            "repoURL" : REST_JSON['detail'][0]['branches'][0]['repository']['url'],
-            "id" : i.id,
-            "file_list" : file_list
-            }
+            '''
+            info_list = []
+            for detail in REST_JSON['detail'][0]['branches']:
+              bN = detail['name']
+              rN = detail['repository']['name']
+              rU = detail['repository']['url']
+
+              file_dump = []
+              for k in REST_ADD['detail'][0]['repositories']:
+                if(k['url'] == rU):
+                  for h in k['commits']:
+                    for l in h['files']:
+                      file_dump.append(l['path'])
+              file_list_set = set(file_dump)
+              file_list = list(file_list_set)
+
+              info_dict={
+                "repoName" : rN ,
+                "repoURL" : rU,
+                "branch" : bN,
+                "id" : i.id,
+                "file_list" : file_list 
+              }
+              info_list.append(info_dict)
+            
+              tiket_dict[i.key]= info_list
+
         except:
             print(f"{i.key} : not found GITHUB BRANCH")
     
     return tiket_dict
-
 
 def comment(URL, userName, accessToken, statusValue, jira_tiket, psalmResult, pipe_url):
     text =f'[SEC_CODE]점검 결과 : {psalmResult}개 취약패턴이 검출되었습니다.\n > 상세 내용 확인 : {pipe_url}'
