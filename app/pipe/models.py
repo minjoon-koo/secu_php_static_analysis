@@ -34,3 +34,8 @@ class Result(models.Model):
     link = models.TextField()
     taint_trace = models.TextField()
 
+class Info(models.Model):
+    tiket = models.ForeignKey(Tiket, on_delete=models.CASCADE)
+    branch = models.TextField()
+    repoURL = models.TextField()
+    content = models.TextField()

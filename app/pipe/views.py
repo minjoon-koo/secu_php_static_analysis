@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Tiket,Thred, Result
+from .models import Tiket,Thred, Result, Info
 from .Tool import git_clone, psalm, jira,comment
 
 import time
@@ -30,24 +30,33 @@ def detail(request, tiket_id):
 def thred_create(request, tiket_id):
     tiket = get_object_or_404(Tiket, pk=tiket_id)
     jira_tiket = request.POST.get('jira_tiket')
-    branch = request.POST.get('branch')
+    info = Info.objects.filter(tiket_id = tiket_id)
     thred = int(request.POST.get('thred'))+1
-    repoURL = request.POST.get('repoURL')
     accessToken = os.environ.get("GIT_ACCESS_TOKEN")
     userName = os.environ.get("GIT_USER_NAME")
     checkResult = 'safety'
-    file_list = tiket.content.replace("\'","").replace("[","").replace("]","").replace(" ","").split(",")
+    #file_list = tiket.content.replace("\'","").replace("[","").replace("]","").replace(" ","").split(",")
+    file_list = []
 
-    git_msg = git_clone(userName=userName, accessToken=accessToken, branch=branch, repoUrl = repoURL, Tiket=tiket.id, Thred=thred)
-    if(git_msg.find(ERROR_FATAL) != -1) : return redirect('pipe:detail', tiket_id=tiket.id)
+    No = 1
+    for i in info:
+        git_msg = git_clone(userName=userName, accessToken=accessToken, branch=i.branch, repoUrl = i.repoURL, Tiket=tiket.id, Thred=thred, No=str(No))
+        if(git_msg.find(ERROR_FATAL) != -1) : return redirect('pipe:detail', tiket_id=tiket.id)
+        commits = i.content.replace("\'","").replace("[","").replace("]","").replace(" ","").split(",")
+        for j in commits:
+            if(j.find(".lock") == -1):
+                file_list.append(f"{No}/{j}")
+        No = No +1
+    
+    print(file_list)
+    
     psalm(Tiket=tiket_id, Thred=thred, file_list=file_list)
     ps_msg = json.loads(psalm(Tiket=tiket_id, Thred=thred, file_list=file_list))
     if(len(ps_msg)) :  checkResult = 'Warning'
 
 
-    tiket.thred_set.create(content=f"{jira_tiket}-{repoURL}-{branch}", create_date=timezone.now(), 
+    tiket.thred_set.create(content=f"{jira_tiket}", create_date=timezone.now(), 
     psalmResult =len(ps_msg),checkResult=checkResult, thred_num=thred)
-  
 
     for i in ps_msg:
         tiket.result_set.create(thred = thred, Type=i['type'],
@@ -72,6 +81,7 @@ def thred_create(request, tiket_id):
 
     return redirect('pipe:detail', tiket_id=tiket.id)
     #return JsonResponse(tmp)
+   
 '''
 @csrf_exempt
 def thred_create(request, tiket_id):
@@ -132,10 +142,10 @@ def ajax_test(request):
     for j in jira_tiket.keys():
         if j not in issue_list:
             print(f"create tiket - jira issue_num : {j}")
-            newTiket = Tiket(jira_tiket= j, subject = jira_tiket[j]['repoName'], status= statusValue, 
-            branch= jira_tiket[j]['branch'], repoURL=jira_tiket[j]['repoURL'].replace("https://",""), create_date= timezone.now(),
-            content=jira_tiket[j]['file_list'], jira_id=jira_tiket[j]['id'])
+            newTiket = Tiket(jira_tiket= j, status= statusValue, create_date= timezone.now())
             newTiket.save()
+            for k in jira_tiket[j]:
+                newTiket.info_set.create(branch=k['branch'], repoURL=k['repoURL'].replace("https://",""), content=k['file_list'])
         else:
             print(f"already created tiket : {j}")
             #print(jira_tiket[j]['file_list'])
@@ -143,6 +153,7 @@ def ajax_test(request):
     context = {"test":temp}
     return JsonResponse(context)
     #return JsonResponse(tmp)
+
 
 def thred_list(request, tiket_id,thred_num):
     tiket = get_object_or_404(Tiket,pk=tiket_id)
