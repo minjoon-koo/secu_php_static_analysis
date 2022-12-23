@@ -64,11 +64,11 @@ def psalm(Tiket, Thred,file_list):
     Newconf = xmltodict.unparse(confDict, pretty=True)
     with open(configFile,'w') as f:
         f.write(Newconf)
-
     #2. psaml analysis 
     result = subprocess.run([execbin,execoption,'--taint-analysis',output],capture_output=True, text=True)
     #3. return json 
     json_res = result.stdout
+
     print(result.stdout)
     print(result.stderr)
     return result.stdout

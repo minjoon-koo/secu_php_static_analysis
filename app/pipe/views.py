@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Tiket,Thred, Result, Info
 from .Tool import git_clone, psalm, jira,comment
+from pathlib import Path
+import requests
 
 import time
 import os,dotenv, json,subprocess
@@ -16,6 +18,10 @@ ERROR_FATAL = 'fatal'
 
 
 # Create your views here.
+
+def slack_push(msg,url):
+    payload = { "text" : msg }
+    requests.post(url, json=payload)
 
 def index(request):
     tiket_list = Tiket.objects.order_by('-create_date')
@@ -34,9 +40,12 @@ def thred_create(request, tiket_id):
     thred = int(request.POST.get('thred'))+1
     accessToken = os.environ.get("GIT_ACCESS_TOKEN")
     userName = os.environ.get("GIT_USER_NAME")
+    slack_webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
     checkResult = 'safety'
     #file_list = tiket.content.replace("\'","").replace("[","").replace("]","").replace(" ","").split(",")
     file_list = []
+    dir = f"./../Storage/{str(tiket_id)}"
+    subprocess.run(['rm','-rf',dir])
 
     No = 1
     for i in info:
@@ -44,8 +53,13 @@ def thred_create(request, tiket_id):
         if(git_msg.find(ERROR_FATAL) != -1) : return redirect('pipe:detail', tiket_id=tiket.id)
         commits = i.content.replace("\'","").replace("[","").replace("]","").replace(" ","").split(",")
         for j in commits:
-            if(j.find(".lock") == -1):
-                file_list.append(f"{No}/{j}")
+            if(j.find(".php") != -1):
+                path_str = f"./../Storage/{str(tiket_id)}/{str(thred)}/{str(No)}/{j}"
+                real_path = Path(path_str)
+                print(real_path)
+                if(real_path.exists()):
+                    print(f"real_Path appended")
+                    file_list.append(f"{No}/{j}")
         No = No +1
     
     print(file_list)
@@ -72,12 +86,18 @@ def thred_create(request, tiket_id):
     JIRA_userName=os.environ.get("JIRA_USER_EMAIL")
     JIRA_accessToken = os.environ.get("JIRA_ACCESS_TOKEN")
     T = Tiket.objects.get(id =tiket_id)
+    T.pr_exec = 'excuted'
+    T.save()
     SV = T.status
     SEC_URL = os.environ.get("SEC_URL")
     pipe_url = f"{SEC_URL}/pipe/{tiket.id}"
     tt = Thred.objects.get(thred_num=thred,tiket_id=tiket_id)
     comment(JIRA_URL,JIRA_userName,JIRA_accessToken, SV, "SEC-95",tt.psalmResult ,pipe_url)
-    #subprocess.run(['rm','-rf',dir])
+    
+    create_msg = "[Sec]Code 점검 - 코드점검이 완료되었습니다\n"
+    create_msg = create_msg + f"jira_tiket: {jira_tiket}\nresualt : {SV} ({tt.psalmResult})"
+    slack_push(create_msg,slack_webhook_url)
+
 
     return redirect('pipe:detail', tiket_id=tiket.id)
     #return JsonResponse(tmp)
@@ -124,8 +144,6 @@ def thred_create(request, tiket_id):
 
 @csrf_exempt
 def ajax_test(request):
-    temp = request.POST.get('msg')
-    print(temp)
     URL = os.environ.get("JIRA_URL")
     userName=os.environ.get("JIRA_USER_EMAIL")
     accessToken = os.environ.get("JIRA_ACCESS_TOKEN")
@@ -150,7 +168,7 @@ def ajax_test(request):
             print(f"already created tiket : {j}")
             #print(jira_tiket[j]['file_list'])
     
-    context = {"test":temp}
+    context = {"test":"test"}
     return JsonResponse(context)
     #return JsonResponse(tmp)
 
@@ -174,3 +192,4 @@ def error(request):
 
 def login(request):
     return render(request, 'pipe/login.html')
+
