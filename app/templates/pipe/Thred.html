@@ -30,7 +30,6 @@
 
 </br>
 <form action="{% url 'pipe:thred_create' tiket.id %}"  method="post" >{% csrf_token %}
-    <input type="hidden" id="id" name="branch" value="{{tiket.id}}">
     <input type="hidden" id="jira_tiket" name="jira_tiket" value="{{tiket.jira_tiket}}">
     <input type="hidden" id="thred" name="thred" value={{ tiket.thred_set.count }}>
     {% if tiket.status == '점검 완료'%}

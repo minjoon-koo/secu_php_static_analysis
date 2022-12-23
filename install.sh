@@ -2,6 +2,7 @@
 pip install django
 pip install python-dotenv
 pip install xmltodict
+#pip install django4-background-tasks
 
 
 #jira 
@@ -24,3 +25,7 @@ composer require --dev psalm/plugin-laravel
 ./vendor/bin/psalm --init
 ./vendor/bin/psalm-plugin enable psalm/plugin-laravel
 composer require --dev roave/psalm-html-output
+
+
+#crontab
+python3 manage.py crontab add

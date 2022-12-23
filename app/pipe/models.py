@@ -3,16 +3,13 @@ from django.db import models
 # Create your models here.
 
 class Tiket(models.Model):
-    subject = models.CharField(max_length=200)
-    content = models.TextField()
     jira_tiket = models.TextField(null=True)
-    repoURL = models.TextField()
-    branch = models.TextField()
     status = models.TextField()
     create_date = models.DateTimeField()
     jira_id = models.TextField(null=True)
-    def __str__(self):
-        return self.subject
+    pr_num = models.TextField()
+    pr_exec = models.TextField()
+
 
 class Thred(models.Model):
     tiket = models.ForeignKey(Tiket, on_delete=models.CASCADE)
